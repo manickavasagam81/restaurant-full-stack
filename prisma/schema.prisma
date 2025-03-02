@@ -13,35 +13,91 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String    @unique
+  emailVerified DateTime?
+  image         String?
+  accounts      Account[]
+  sessions      Session[]
+  isAdmin       Boolean   @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  Order     Order[]
+}
+
+model Account {
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([provider, providerAccountId])
+}
+
+model Session {
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model VerificationToken {
+  identifier String
+  token      String
+  expires    DateTime
+
+  @@id([identifier, token])
+}
 
 model Category {
-  id  String @id @default(cuid())
-  createdAt DateTime @default(now())
-  title String
-  desc String
-  color String
-  img String
-  slug String @unique
-  products Product[]
+  id        String    @id @default(cuid())
+  createdAt DateTime  @default(now())
+  title     String
+  desc      String
+  color     String
+  img       String
+  slug      String    @unique
+  products  Product[]
 }
-model Product{
-  id String @id @default(cuid())
-  createdAT DateTime @default(now())
-  title String
-  desc String
-  img String?
-  price Decimal
-  isFeatured Boolean @default(false)
-  options Json[]
-  category Category @relation(fields: [catSlug],references: [slug])
-  catSlug String
+
+model Product {
+  id         String   @id @default(cuid())
+  createdAT  DateTime @default(now())
+  title      String
+  desc       String
+  img        String?
+  price      Decimal
+  isFeatured Boolean  @default(false)
+  options    Json[]
+  category   Category @relation(fields: [catSlug], references: [slug])
+  catSlug    String
 }
+
 model Order {
-  id String @id @default(cuid())
+  id        String   @id @default(cuid())
   createdAt DateTime @default(now())
-  price Decimal
-  products Json[]
-  status String
-   intent_id String? @unique
- 
+  price     Decimal
+  products  Json[]
+  status    String
+  intent_id String?  @unique
+  user      User     @relation(fields: [userEmail], references: [email])
+  userEmail String
 }
