@@ -3,7 +3,7 @@ import { MenuType } from "@/types/types";
 import Link from "next/link";
 import React from "react";
 const getData = async () => {
-  const res = await fetch("http://localhost:3000/api/categories",{cache:"no-store"})
+  const res = await fetch("http://localhost:3005/api/categories",{cache:"no-store"})
   if (!res.ok) {
     throw new Error("Failed to fetch data")
   }
