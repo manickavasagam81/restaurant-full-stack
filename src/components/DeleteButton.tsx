@@ -12,7 +12,7 @@ const DeleteButton = ({ id }:{id:string}) => {
     if (status === "loading") return <p>Loading...</p>
   if (status === "unauthenticated") return;
   const handleDelete = async () => {
-    const res = await fetch(`http://localhost:3005/api/products/${id}`, { method: "DELETE" })
+    const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}api/products/${id}`, { method: "DELETE" })
     if (res.status === 200) {
       router.push("/menu")
       toast("Product deleted successfully")

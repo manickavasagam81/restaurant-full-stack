@@ -6,7 +6,7 @@ import React, { cache } from "react";
 import DeleteButton from "@/components/DeleteButton"
 
 const getData = async (id:string) => {
-  const res = await fetch(`http://localhost:3000/api/products/${id}`, { cache: "no-store" })
+  const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}api/products/${id}`, { cache: "no-store" })
   if (!res.ok) throw new Error("Failed to fetch data")
   return res.json()
 }

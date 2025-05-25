@@ -2,6 +2,7 @@
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import React, { useState } from "react";
+import { toast } from "react-toastify";
 type Inputs = {
   title: string;
   desc: string;
@@ -26,6 +27,7 @@ const AddPage = () => {
     additionalPrice: 0,
   });
   const [options, setOptions] = useState<Option[]>([]);
+  const [file, setFile] = useState<File>();
   if (status === "loading") return <div>Loading...</div>;
   if (status === "unauthenticated" || !session?.user.isAdmin)
     return router.push("/");
@@ -41,13 +43,35 @@ const AddPage = () => {
       return { ...prev, [e.target.name]: e.target.value };
     });
   };
+  const handleChangeImg = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const target = e.target as HTMLInputElement;
+    const item = (target.files as FileList)[0];
+    setFile(item);
+  };
+  const upload = async () => {
+    console.log("iam")
+    const data = new FormData();
+    data.append("file", file!);
+    data.append("upload_preset", "restaurant");
+    const res = await fetch("https://api.cloudinary.com/v1_1/manick/image", {
+      method: "POST",
+      headers: { "content-type": "multipart/form-data" },
+      body: data,
+    });
+    const resData = await res.json();
+    return resData.url;
+  };
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     try {
-      const res = await fetch("http://localhost:3005/api/products", {
+      const url = await upload();
+      const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/products`, {
         method: "POST",
-        body: JSON.stringify({ ...inputs, options }),
+        body: JSON.stringify({ img: url, ...inputs, options }),
       });
       const data = await res.json();
+      console.log(data);
+      toast.success("Product Added Successfully");
       // router.push(`/product/${data.id}`);
     } catch (err) {
       console.log(err);
@@ -60,6 +84,15 @@ const AddPage = () => {
         className="shadow-lg flex flex-wrap gap-4 p-8"
       >
         <h2>Add Product</h2>
+        <div className="w-full flex flex-col gap-2">
+          <label>Image</label>
+          <input
+            onChange={handleChangeImg}
+            className="ring-1 ring-red-200 p-2 rounded-sm"
+            name="file"
+            type="file"
+          />
+        </div>
         <div className="w-full flex flex-col gap-2">
           <label>Title</label>
           <input
