@@ -3,6 +3,7 @@ import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import React, { useState } from "react";
 import { toast } from "react-toastify";
+
 type Inputs = {
   title: string;
   desc: string;
@@ -49,7 +50,7 @@ const AddPage = () => {
     setFile(item);
   };
   const upload = async () => {
-    console.log("iam")
+    console.log("iam");
     const data = new FormData();
     data.append("file", file!);
     data.append("upload_preset", "restaurant");
@@ -65,10 +66,13 @@ const AddPage = () => {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     try {
       const url = await upload();
-      const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/products`, {
-        method: "POST",
-        body: JSON.stringify({ img: url, ...inputs, options }),
-      });
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_BASE_URL}/api/products`,
+        {
+          method: "POST",
+          body: JSON.stringify({ img: url, ...inputs, options }),
+        }
+      );
       const data = await res.json();
       console.log(data);
       toast.success("Product Added Successfully");
